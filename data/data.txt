@@ -1,0 +1,5 @@
+the data should go as follows. 
+- test directory
+- train directory with both test and train
+- tfrecords directory to store tfrecords
+
