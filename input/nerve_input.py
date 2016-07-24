@@ -2,9 +2,6 @@
 import os
 import numpy as np
 import tensorflow as tf
-import utils.createTFRecords as createTFRecords
-import systems.cannon as cannon 
-import systems.cannon_createTFRecords as cannon_createTFRecords
 from glob import glob as glb
 
 
@@ -54,19 +51,19 @@ def _generate_image_label_batch(image, mask, batch_size, shuffle=True):
   if shuffle:
     #Create a queue that shuffles the examples, and then
     #read 'batch_size' images + labels from the example queue.
-    frames = tf.train.shuffle_batch(
+    images, masks = tf.train.shuffle_batch(
       [image, mask],
       batch_size=batch_size,
       num_threads=num_preprocess_threads,
       capacity=FLAGS.min_queue_examples + 3 * batch_size,
       min_after_dequeue=FLAGS.min_queue_examples)
   else:
-     frames = tf.train.batch(
+     images, masks = tf.train.batch(
       [image, mask],
       batch_size=batch_size,
       num_threads=num_preprocess_threads,
       capacity=FLAGS.min_queue_examples + 3 * batch_size)
-  return frames
+  return images, masks
 
 def nerve_inputs(batch_size):
   """ Construct nerve input net.
@@ -90,7 +87,7 @@ def nerve_inputs(batch_size):
   tf.image_summary('images', image)
   tf.image_summary('mask', mask)
 
-  frames = _generate_image_label_batch(image, batch_size)
+  images, masks = _generate_image_label_batch(image, mask, batch_size)
  
-  return frames 
+  return images, masks 
 
