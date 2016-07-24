@@ -64,15 +64,17 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
     tf.add_to_collection('losses', weight_decay)
   return var
 
-def _conv_layer(inputs, kernel_size, stride, num_features, idx):
+def _conv_layer(inputs, kernel_size, stride, num_features, pad_size, idx):
   with tf.variable_scope('{0}_conv'.format(idx)) as scope:
     input_channels = inputs.get_shape()[3]
     print(inputs.get_shape())
+    pad_mat = np.array([[0,0],[0,pad_size[0]],[0,pad_size[1]],[0,0]])
+    input_pad = tf.pad(inputs, pad_mat)
 
     weights = _variable_with_weight_decay('weights', shape=[kernel_size,kernel_size,input_channels,num_features],stddev=0.1, wd=FLAGS.weight_decay)
     biases = _variable_on_cpu('biases',[num_features],tf.constant_initializer(0.1))
 
-    conv = tf.nn.conv2d(inputs, weights, strides=[1, stride, stride, 1], padding='SAME')
+    conv = tf.nn.conv2d(input_pad, weights, strides=[1, stride, stride, 1], padding='VALID')
     conv_biased = tf.nn.bias_add(conv, biases)
     #elu
     conv_rect = tf.nn.elu(conv_biased,name='{0}_conv'.format(idx))
@@ -82,6 +84,8 @@ def _transpose_conv_layer(inputs, kernel_size, stride, num_features, idx):
   with tf.variable_scope('{0}_trans_conv'.format(idx)) as scope:
     input_channels = inputs.get_shape()[3]
     print(inputs.get_shape())
+    #pad_mat = np.array([[0,0],[0,pad_size[0]],[0,pad_size[1]],[0,0]])
+    #input_pad = tf.pad(inputs, pad_mat)
     
     weights = _variable_with_weight_decay('weights', shape=[kernel_size,kernel_size,num_features,input_channels], stddev=0.1, wd=FLAGS.weight_decay)
     biases = _variable_on_cpu('biases',[num_features],tf.constant_initializer(0.1))
@@ -93,9 +97,12 @@ def _transpose_conv_layer(inputs, kernel_size, stride, num_features, idx):
     conv_rect = tf.nn.elu(conv_biased,name='{0}_conv'.format(idx))
     return conv_rect
      
-def _pool_layer(inputs, kernel_size, stride, idx):
-  max_pool = tf.nn.max_pool(inputs_pad,  kernel_size, stride, padding='SAME', name='{0}_max_pool'.format(idx))
-  average_pool = tf.nn.avg_pool(inputs_pad,  kernel_size, stride, padding='SAME', name='{0}_average_pool'.format(idx))
+def _pool_layer(inputs, kernel_size, stride, pad_size, idx):
+  print(inputs.get_shape())
+  pad_mat = np.array([[0,0],[0,pad_size[0]],[0,pad_size[1]],[0,0]])
+  input_pad = tf.pad(inputs, pad_mat)
+  max_pool = tf.nn.max_pool(input_pad,  kernel_size, stride, padding='VALID', name='{0}_max_pool'.format(idx))
+  average_pool = tf.nn.avg_pool(input_pad,  kernel_size, stride, padding='VALID', name='{0}_average_pool'.format(idx))
   pool = tf.add(average_pool, max_pool) 
   return pool
 
@@ -125,63 +132,72 @@ def conv_ced(inputs, keep_prob):
     keep_prob: dropout layer
   """
   # conv1
-  conv1 = _conv_layer(inputs, 7, 2, 64, 1)
+  conv1 = _conv_layer(inputs, 7, 2, 64, [6,6], 1)
   # pool1
-  pool1 = _pool_layer(conv1, [1, 2, 2, 1], [1, 2, 2, 1], 2)
+  pool1 = _pool_layer(conv1, [1, 2, 2, 1], [1, 2, 2, 1], [2,2], 2)
   # conv2
-  conv2 = _conv_layer(pool1, 3, 1, 128, 3)
+  conv2 = _conv_layer(pool1, 3, 1, 128, [2,2], 3)
   # pool2
-  pool2 = _pool_layer(conv2, [1, 2, 2, 1], [1, 2, 2, 1], 4)
+  pool2 = _pool_layer(conv2, [1, 2, 2, 1], [1, 2, 2, 1], [1,1], 4)
   # conv3 
-  conv3 = _conv_layer(pool2, 1, 1, 128, 5)
+  conv3 = _conv_layer(pool2, 1, 1, 128, [0,0], 5)
   # conv4 
-  conv4 = _conv_layer(conv3, 3, 1, 256, 6)
+  conv4 = _conv_layer(conv3, 3, 1, 256, [2,2], 6)
   # conv5 
-  conv5 = _conv_layer(conv4, 1, 1, 256, 7)
+  conv5 = _conv_layer(conv4, 1, 1, 256, [0,0], 7)
   # conv6 
-  conv6 = _conv_layer(conv5, 3, 1, 512, 8)
+  conv6 = _conv_layer(conv5, 3, 1, 512, [2,2], 8)
   # pool3
-  pool3 = _pool_layer(conv6, [1, 2, 2, 1], [1, 2, 2, 1], 9)
+  pool3 = _pool_layer(conv6, [1, 2, 2, 1], [1, 2, 2, 1], [1,1], 9)
   # conv7 
-  conv7 = _conv_layer(pool3, 1, 1, 256, 10)
+  conv7 = _conv_layer(pool3, 1, 1, 256, [0,0], 10)
   # conv8 
-  conv8 = _conv_layer(conv7, 3, 1, 512, 10)
+  conv8 = _conv_layer(conv7, 3, 1, 512, [2,2], 11)
   # conv9 
-  conv9 = _conv_layer(conv8, 1, 1, 256, 10)
+  conv9 = _conv_layer(conv8, 1, 1, 256, [0,0], 12)
   # conv10 
-  conv10 = _conv_layer(conv9, 3, 1, 512, 10)
+  conv10 = _conv_layer(conv9, 3, 1, 512, [1,1], 13)
   # conv11 
-  conv11 = _conv_layer(conv10, 1, 1, 256, 10)
+  conv11 = _conv_layer(conv10, 1, 1, 256, [0,0], 14)
 
   return conv11 
 
-def decoding_84x84x3(inputs):
+def trans_conv_ced(inputs):
   """Builds decoding part of ring net.
   Args:
     inputs: input to decoder
   """
-  #--------- Making the net -----------
-  # x_1 -> y_1 -> y_2 -> x_2
-  # this peice y_2 -> x_2
-  y_2 = inputs 
- 
-  # fc21
-  fc21 = _fc_layer(y_2, 64*14*14, 21, False, False)
-  conv22 = tf.reshape(fc21, [-1, 14, 14, 64])
   # conv23
-  conv23 = _transpose_conv_layer(conv22, 1, 1, 128, 23)
+  #conv23 = _transpose_conv_layer(inputs, 3, 2, 128, [0,0], 23)
   # conv24
-  conv24 = _transpose_conv_layer(conv23, 3, 1, 64, 24)
+  #conv24 = _transpose_conv_layer(conv23, 3, 2, 128, [0,0], 24)
   # conv25
-  conv25 = _transpose_conv_layer(conv24, 1, 1, 128, 25)
+  #conv25 = _transpose_conv_layer(conv24, 3, 1, 128, [0,0], 26)
   # conv26
-  conv26 = _transpose_conv_layer(conv25, 3, 1, 128, 26)
-  # conv25
-  conv27 = _transpose_conv_layer(conv26, 4, 2, 256, 27)
-  # conv26
-  x_2 = _transpose_conv_layer(conv27, 8, 3, 3, 28)
-  # x_2 
-  _activation_summary(x_2)
+  #conv26 = _transpose_conv_layer(conv25, 3, 2, 256, [0,0], 27)
+  # mask
+  #mask = _transpose_conv_layer(conv26, 4, 2, 1, [0,0], 28)
+  #_activation_summary(mask)
 
-  return x_2 
+  # conv23
+  conv23 = _transpose_conv_layer(inputs, 3, 2, 128, 23)
+  # conv24
+  conv24 = _transpose_conv_layer(conv23, 3, 2, 128, 24)
+  # conv25
+  conv25 = _transpose_conv_layer(conv24, 3, 1, 128, 26)
+  # conv26
+  conv26 = _transpose_conv_layer(conv25, 3, 2, 256, 27)
+  # mask
+  mask = _transpose_conv_layer(conv26, 4, 2, 1, 28)
+  pad_mat = np.array([[0,0],[0,4],[0,4],[0,0]])
+  mask_pad = tf.pad(mask, pad_mat)
+  # pad mask a little :-( 
+  print("mask is shape")
+  print(mask_pad.get_shape())
+  _activation_summary(mask_pad)
+
+  # display output
+  tf.image_summary('predicted_mask', mask_pad)
+
+  return mask_pad 
 

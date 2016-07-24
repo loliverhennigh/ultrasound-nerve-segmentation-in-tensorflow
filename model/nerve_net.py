@@ -11,13 +11,14 @@ Summary of available functions:
 
 import tensorflow as tf
 import numpy as np
-import architecture
-import unwrap_helper
+import nerve_architecture
 import input.nerve_input as nerve_input
 
 FLAGS = tf.app.flags.FLAGS
 
 # Constants describing the training process.
+tf.app.flags.DEFINE_string('checkpoint_dir', '../checkpoints/run_0001',
+                           """ checkpoint file to save to """)
 tf.app.flags.DEFINE_string('model', 'ced',
                            """ model name to train """)
 tf.app.flags.DEFINE_string('output_type', 'mask_image',
@@ -32,17 +33,13 @@ tf.app.flags.DEFINE_float('dropout_hidden', 0.5,
                           """ dropout on hidden """)
 tf.app.flags.DEFINE_float('dropout_input', 0.8,
                           """ dropout on input """)
-# possible models to train are
-# markov_28x28x4
-# fully_connected_28x28x4
-
-def inputs(batch_size, seq_length):
+def inputs(batch_size):
   """makes input vector
   Return:
     x: input vector, may be filled 
   """
-  x = nerve_input.nerve_inputs(batch_size)
-  return x
+  x, mask = nerve_input.nerve_inputs(batch_size)
+  return x, mask
 
 def inference(inputs, keep_prob):
   """Builds network.

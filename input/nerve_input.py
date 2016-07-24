@@ -26,7 +26,7 @@ def read_data(filename_queue, shape):
   features = tf.parse_single_example(
     serialized_example,
     features={
-      'image':tf.FixedLenFeature([],tf.string)
+      'image':tf.FixedLenFeature([],tf.string),
       'mask':tf.FixedLenFeature([],tf.string)
     }) 
   image = tf.decode_raw(features['image'], tf.uint8)
@@ -82,12 +82,12 @@ def nerve_inputs(batch_size):
   filename_queue = tf.train.string_input_producer(tfrecord_filename) 
 
   image, mask = read_data(filename_queue, shape)
- 
-  # display in tf summary page 
-  tf.image_summary('images', image)
-  tf.image_summary('mask', mask)
 
   images, masks = _generate_image_label_batch(image, mask, batch_size)
  
+  # display in tf summary page 
+  tf.image_summary('images', images)
+  tf.image_summary('mask', masks)
+
   return images, masks 
 
