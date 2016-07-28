@@ -71,8 +71,8 @@ def _conv_layer(inputs, kernel_size, stride, num_features, pad_size, idx):
     pad_mat = np.array([[0,0],[0,pad_size[0]],[0,pad_size[1]],[0,0]])
     input_pad = tf.pad(inputs, pad_mat)
 
-    weights = _variable_with_weight_decay('weights', shape=[kernel_size,kernel_size,input_channels,num_features],stddev=0.1, wd=FLAGS.weight_decay)
-    biases = _variable_on_cpu('biases',[num_features],tf.constant_initializer(0.1))
+    weights = _variable_with_weight_decay('weights', shape=[kernel_size,kernel_size,input_channels,num_features],stddev=0.001, wd=FLAGS.weight_decay)
+    biases = _variable_on_cpu('biases',[num_features],tf.constant_initializer(0.001))
 
     conv = tf.nn.conv2d(input_pad, weights, strides=[1, stride, stride, 1], padding='VALID')
     conv_biased = tf.nn.bias_add(conv, biases)
@@ -87,8 +87,8 @@ def _transpose_conv_layer(inputs, kernel_size, stride, num_features, idx):
     #pad_mat = np.array([[0,0],[0,pad_size[0]],[0,pad_size[1]],[0,0]])
     #input_pad = tf.pad(inputs, pad_mat)
     
-    weights = _variable_with_weight_decay('weights', shape=[kernel_size,kernel_size,num_features,input_channels], stddev=0.1, wd=FLAGS.weight_decay)
-    biases = _variable_on_cpu('biases',[num_features],tf.constant_initializer(0.1))
+    weights = _variable_with_weight_decay('weights', shape=[kernel_size,kernel_size,num_features,input_channels], stddev=0.001, wd=FLAGS.weight_decay)
+    biases = _variable_on_cpu('biases',[num_features],tf.constant_initializer(0.001))
     batch_size = tf.shape(inputs)[0]
     output_shape = tf.pack([tf.shape(inputs)[0], tf.shape(inputs)[1]*stride, tf.shape(inputs)[2]*stride, num_features]) 
     conv = tf.nn.conv2d_transpose(inputs, weights, output_shape, strides=[1,stride,stride,1], padding='SAME')

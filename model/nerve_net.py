@@ -17,8 +17,6 @@ import input.nerve_input as nerve_input
 FLAGS = tf.app.flags.FLAGS
 
 # Constants describing the training process.
-tf.app.flags.DEFINE_string('checkpoint_dir', '../checkpoints/run_0001',
-                           """ checkpoint file to save to """)
 tf.app.flags.DEFINE_string('model', 'ced',
                            """ model name to train """)
 tf.app.flags.DEFINE_string('output_type', 'mask_image',
