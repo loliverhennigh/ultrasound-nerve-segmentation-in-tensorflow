@@ -65,6 +65,10 @@ def evaluate():
                                             graph_def=graph_def)
 
     for f in filenames:
+      # name to save 
+      prediction_path = '../data/prediction/'
+      name = f[13:-4]
+
       # read in image
       img = cv2.imread(f, 0)
  
@@ -76,10 +80,16 @@ def evaluate():
       generated_mask = sess.run([mask],feed_dict={images_op: img, keep_prob: 1.0})
       generated_mask = generated_mask[0]
       generated_mask = generated_mask[0, :, :, :]
+      generated_mask = np.uint8(generated_mask)
       print(generated_mask.shape)
+      print(img.shape)
+      print(np.max(img))
+      print(np.max(generated_mask))
  
       # display image
-      cv2.imshow('mask', generated_mask)
+      cv2.imshow('img', img[0,:,:,0])
+      cv2.waitKey(0)
+      cv2.imshow('mask', generated_mask[:,:,0])
       cv2.waitKey(0)
       if cv2.waitKey(1) & 0xFF == ord('q'):
         break
