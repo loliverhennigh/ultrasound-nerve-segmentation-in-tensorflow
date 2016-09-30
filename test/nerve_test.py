@@ -26,6 +26,8 @@ tf.app.flags.DEFINE_string('eval_dir', '../checkpoints/eval_run',
                             """dir to store eval run """)
 tf.app.flags.DEFINE_string('checkpoint_dir', '../checkpoints/train_store_run_0001',
                             """dir to load trained net """)
+tf.app.flags.DEFINE_bool('view_images', 'False',
+                            """ If you want to view image and generated masks""")
 
 def tryint(s):
   try:
@@ -121,6 +123,20 @@ def evaluate():
       if cv2.waitKey(1) & 0xFF == ord('q'):
         break
       '''
+      generated_mask = np.uint8(generated_mask)
+      print(generated_mask.shape)
+      print(img.shape)
+      print(np.max(img))
+      print(np.max(generated_mask))
+
+      if FLAGS.view_images: 
+        # display image
+        cv2.imshow('img', img[0,:,:,0])
+        cv2.waitKey(0)
+        cv2.imshow('mask', generated_mask[:,:,0])
+        cv2.waitKey(0)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+          break
 
 def main(argv=None):  # pylint: disable=unused-argument
   if tf.gfile.Exists(FLAGS.eval_dir):

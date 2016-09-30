@@ -21,7 +21,7 @@ tf.app.flags.DEFINE_float('input_keep_prob', .9,
                             """ keep probability for dropout """)
 tf.app.flags.DEFINE_float('keep_prob', .5,
                             """ keep probability for dropout """)
-tf.app.flags.DEFINE_float('learning_rate', .0001,
+tf.app.flags.DEFINE_float('learning_rate', .001,
                             """ keep probability for dropout """)
 
 
