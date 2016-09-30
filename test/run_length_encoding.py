@@ -10,7 +10,7 @@ import cv2
 # For example, running this (by clicking run or pressing Shift+Enter) will list the files in the input directory
 
 from subprocess import check_output
-print(check_output(["ls", "../input"]).decode("utf8"))
+#print(check_output(["ls", "../input"]).decode("utf8"))
 
 # Any results you write to the current directory are saved as output.
 def RLenc(img,order='F',format=True):
@@ -50,11 +50,11 @@ def RLenc(img,order='F',format=True):
     else:
         return runs
 
-mask = cv2.imread('../input/train/1_1_mask.tif',cv2.IMREAD_GRAYSCALE)
-mask_rle = RLenc(mask)
+#mask = cv2.imread('../input/train/1_1_mask.tif',cv2.IMREAD_GRAYSCALE)
+#mask_rle = RLenc(mask)
 
 #check output
-print(mask_rle[:100])
+#print(mask_rle[:100])
 ''' from train_masks.csv
 subject,img,pixels
 1,1,168153 9 168570 15 168984 22 169401 26 169818 30 170236 34 170654 36 171072 39 171489 42 ...
