@@ -8,6 +8,10 @@ import re
 
 FLAGS = tf.app.flags.FLAGS
 
+
+tf.app.flags.DEFINE_bool('debug', False,
+                            """ this will show the images while generating records. """)
+
 # helper function
 def _bytes_feature(value):
   return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
@@ -39,10 +43,11 @@ for pair in pair_filename:
   mask = cv2.imread(pair[1], 0) 
   
   # Display the resulting frame
-  cv2.imshow('image', image) 
-  cv2.waitKey(0)
-  cv2.imshow('image', mask) 
-  cv2.waitKey(0)
+  if FLAGS.debug == True:
+    cv2.imshow('image', image) 
+    cv2.waitKey(0)
+    cv2.imshow('image', mask) 
+    cv2.waitKey(0)
    
   # process frame for saving
   image = np.uint8(image)
