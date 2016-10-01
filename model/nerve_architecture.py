@@ -80,7 +80,7 @@ def _conv_layer(inputs, kernel_size, stride, num_features, pad_size, idx):
     conv_rect = tf.nn.elu(conv_biased,name='{0}_conv'.format(idx))
     return conv_rect
 
-def _transpose_conv_layer(inputs, kernel_size, stride, num_features, idx):
+def _transpose_conv_layer(inputs, kernel_size, stride, num_features, idx, linear=False):
   with tf.variable_scope('{0}_trans_conv'.format(idx)) as scope:
     input_channels = inputs.get_shape()[3]
     print(inputs.get_shape())
@@ -93,6 +93,9 @@ def _transpose_conv_layer(inputs, kernel_size, stride, num_features, idx):
     output_shape = tf.pack([tf.shape(inputs)[0], tf.shape(inputs)[1]*stride, tf.shape(inputs)[2]*stride, num_features]) 
     conv = tf.nn.conv2d_transpose(inputs, weights, output_shape, strides=[1,stride,stride,1], padding='SAME')
     conv_biased = tf.nn.bias_add(conv, biases)
+    #possible linear
+    if linear:
+      return conv_biased
     #elu
     conv_rect = tf.nn.elu(conv_biased,name='{0}_conv'.format(idx))
     return conv_rect
@@ -188,7 +191,8 @@ def trans_conv_ced(inputs):
   # conv26
   conv26 = _transpose_conv_layer(conv25, 3, 2, 256, 27)
   # mask
-  mask = _transpose_conv_layer(conv26, 4, 2, 1, 28)
+  mask = _transpose_conv_layer(conv26, 4, 2, 1, 28, True)
+  mask = tf.nn.sigmoid(mask)
   pad_mat = np.array([[0,0],[0,4],[0,4],[0,0]])
   mask_pad = tf.pad(mask, pad_mat)
   # pad mask a little :-( 

@@ -13,15 +13,15 @@ FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('train_dir', '../checkpoints/train_store_run_0001',
                             """dir to store trained net """)
-tf.app.flags.DEFINE_integer('batch_size', 10,
+tf.app.flags.DEFINE_integer('batch_size', 15,
                             """ training batch size """)
 tf.app.flags.DEFINE_integer('max_steps', 500000,
                             """ max number of steps to train """)
 tf.app.flags.DEFINE_float('input_keep_prob', .9,
                             """ keep probability for dropout """)
-tf.app.flags.DEFINE_float('keep_prob', .5,
+tf.app.flags.DEFINE_float('keep_prob', .8,
                             """ keep probability for dropout """)
-tf.app.flags.DEFINE_float('learning_rate', .001,
+tf.app.flags.DEFINE_float('learning_rate', .0005,
                             """ keep probability for dropout """)
 
 

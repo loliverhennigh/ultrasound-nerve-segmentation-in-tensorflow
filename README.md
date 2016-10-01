@@ -26,6 +26,6 @@ Once the model is trained suffiecently you can evaluate it by running
 ```
 python nerve_test.py
 ```
-This will generated the file to be evalutated by the kaggle website. (hold on, need to push from different computer tomorrow)
+This will generated run length encoding text file that is needed for kaggle to check. You can also run this with the the `--view_images=True` flag to display the predicted 
 
 

@@ -91,7 +91,7 @@ def evaluate():
       name = f[13:-4]
      
       # read in image
-      img = cv2.imread(f, 0)
+      img = cv2.imread(f, 0) / 255.0
  
       # format image for network
       img = np.expand_dims(img, axis=0)
@@ -103,7 +103,7 @@ def evaluate():
       generated_mask = generated_mask[0, :, :, :]
      
       # bin for converting to row format
-      threshold = 128
+      threshold = .5
       generated_mask[:][generated_mask[:]<=threshold]=0 
       generated_mask[:][generated_mask[:]>threshold]=1 
       run_length_encoding = RLenc(generated_mask)
@@ -125,13 +125,12 @@ def evaluate():
       '''
       generated_mask = np.uint8(generated_mask)
       print(generated_mask.shape)
-      print(img.shape)
       print(np.max(img))
       print(np.max(generated_mask))
 
       if FLAGS.view_images: 
         # display image
-        cv2.imshow('img', img[0,:,:,0])
+        cv2.imshow('img', np.uint8(img[0,:,:,0]*255.0))
         cv2.waitKey(0)
         cv2.imshow('mask', generated_mask[:,:,0])
         cv2.waitKey(0)

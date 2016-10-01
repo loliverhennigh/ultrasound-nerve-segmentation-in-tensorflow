@@ -33,8 +33,10 @@ def read_data(filename_queue, shape):
   mask = tf.decode_raw(features['mask'], tf.uint8)
   image = tf.reshape(image, [shape[0], shape[1], 1])
   mask = tf.reshape(mask, [shape[0], shape[1], 1])
-  image = tf.to_float(image) 
+  image = tf.to_float(image)
   mask = tf.to_float(mask) 
+  image = image / 255.0
+  mask = mask / 255.0
   return image, mask
 
 def _generate_image_label_batch(image, mask, batch_size, shuffle=True):

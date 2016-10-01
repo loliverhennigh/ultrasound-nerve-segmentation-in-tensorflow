@@ -60,7 +60,9 @@ def loss_image(prediction, mask):
   Return:
     error: loss value
   """
-  error = tf.nn.l2_loss(prediction - mask)
+  epsilon = 1e-8
+  error = tf.reduce_sum(-mask * tf.log(prediction + epsilon) -
+            (1.0 - mask) * tf.log(1.0 - prediction + epsilon))
   tf.scalar_summary('error', error)
   error.set_shape([])
   tf.add_to_collection('losses', error)
