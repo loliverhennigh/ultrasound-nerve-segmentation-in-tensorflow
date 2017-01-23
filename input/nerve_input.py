@@ -35,7 +35,9 @@ def read_data(filename_queue, shape):
   mask = tf.reshape(mask, [shape[0], shape[1], 1])
   image = tf.to_float(image)
   mask = tf.to_float(mask) 
-  image = image / 255.0
+  image_mean = tf.reduce_mean(image)
+  image = image - image_mean
+  #image = image / 255.0
   mask = mask / 255.0
   return image, mask
 
@@ -49,7 +51,7 @@ def _generate_image_label_batch(image, mask, batch_size, shuffle=True):
     images: Images. 4D tensor of [batch_size, height, width, 1] size.
   """
 
-  num_preprocess_threads = 1
+  num_preprocess_threads = 2
   if shuffle:
     #Create a queue that shuffles the examples, and then
     #read 'batch_size' images + labels from the example queue.

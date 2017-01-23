@@ -21,16 +21,13 @@ tf.app.flags.DEFINE_string('model', 'ced',
                            """ model name to train """)
 tf.app.flags.DEFINE_string('output_type', 'mask_image',
                            """ What kind of output, possibly image. Maybe other in future """)
-tf.app.flags.DEFINE_float('moving_average_decay', 0.9999,
-                          """The decay to use for the moving average""")
-tf.app.flags.DEFINE_float('momentum', 0.9,
-                          """momentum of learning rate""")
-tf.app.flags.DEFINE_float('weight_decay', 0.0005,
-                          """ """)
-tf.app.flags.DEFINE_float('dropout_hidden', 0.5,
-                          """ dropout on hidden """)
-tf.app.flags.DEFINE_float('dropout_input', 0.8,
-                          """ dropout on input """)
+tf.app.flags.DEFINE_integer('nr_res_blocks', 1,
+                           """ nr res blocks """)
+tf.app.flags.DEFINE_bool('gated_res', True,
+                           """ gated resnet or not """)
+tf.app.flags.DEFINE_string('nonlinearity', 'concat_elu',
+                           """ nonlinearity used such as concat_elu, elu, concat_relu, relu """)
+
 def inputs(batch_size):
   """makes input vector
   Return:
@@ -46,8 +43,7 @@ def inference(inputs, keep_prob):
     keep_prob: dropout layer
   """
   if FLAGS.model == "ced": 
-    conv_peice = nerve_architecture.conv_ced(inputs, keep_prob)
-    prediction = nerve_architecture.trans_conv_ced(conv_peice)
+    prediction = nerve_architecture.conv_ced(inputs, nr_res_blocks=FLAGS.nr_res_blocks, keep_prob=keep_prob, nonlinearity_name=FLAGS.nonlinearity, gated=FLAGS.gated_res)
 
   return prediction 
 
@@ -60,13 +56,14 @@ def loss_image(prediction, mask):
   Return:
     error: loss value
   """
-  epsilon = 1e-8
-  error = tf.reduce_sum(-mask * tf.log(prediction + epsilon) -
-            (1.0 - mask) * tf.log(1.0 - prediction + epsilon))
-  tf.scalar_summary('error', error)
-  error.set_shape([])
-  tf.add_to_collection('losses', error)
-  return tf.add_n(tf.get_collection('losses'), name='total_loss')
+  print(prediction.get_shape())
+  print(mask.get_shape())
+  #mask = tf.flatten(mask)
+  #prediction = tf.flatten(prediction)
+  intersection = tf.reduce_sum(prediction * mask)
+  loss = -(2. * intersection + 1.) / (tf.reduce_sum(mask) + tf.reduce_sum(prediction) + 1.)
+  tf.scalar_summary('loss', loss)
+  return loss
 
 def train(total_loss, lr):
    train_op = tf.train.AdamOptimizer(lr).minimize(total_loss)
