@@ -22,10 +22,16 @@ This has a default of set to train for 500,000 steps which is about 100 epochs.
 Some training information such as the loss is recorded and can be viewed with tensorboard. The checkpoint file is found in `checkpoint` and has a default name `train_store_run_0001`.
 
 # Evaulation
-Once the model is trained suffiecently you can evaluate it by running
+Once the model is trained sufficiently you can evaluate it by running
 ```
 python nerve_test.py
 ```
-This will generated run length encoding text file that is needed for kaggle to check. You can also run this with the the `--view_images=True` flag to display the predicted 
+This will generated run length encoding text file that is needed for kaggle to check. You can also run this with the `--view_images=True` flag to display the predicted 
+
+# Model details
+This network is a typical U-net with residual layers and 4 down samples. The residual layer have the option for different nonlinearitys and whether they are gated or not. The default is [Concatenated Elu](https://arxiv.org/pdf/1603.05201.pdf) for the activation function and gated set to True. More details can be found in the `nerve_architecture.py`. The network is very similar to that seen in [PixelCNN++](https://openreview.net/pdf?id=BJrFC6ceg).
+
+# Performance
+This network was able to get .61230 accuracy on the test set. This is fairly impressive because similar U-nets that I have seen are only able to get around .57 [here](https://github.com/jocicmarko/ultrasound-nerve-segmentation). In order to get in the .65 - .69 accuracy range data augmentation seems to be necessary like seen [here](https://github.com/EdwardTyantov/ultrasound-nerve-segmentation).
 
 
